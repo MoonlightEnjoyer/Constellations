@@ -1,12 +1,11 @@
 import cv2
 import numpy as np
-import os
-import calculate_angles
+import constellations_geometry
 
 src_dir = './visualization(named stars)'
 dest_dir = './reference_images'
 
-def clear_constellation_image(filename):
+def clear_constellation_image(self, filename):
     img = cv2.imread(fr'{src_dir}\{filename}',cv2.IMREAD_UNCHANGED)
     cleared_image = np.zeros((img.shape[0], img.shape[1]), np.uint8)
     for i in range(img.shape[0]):
@@ -18,15 +17,9 @@ def clear_constellation_image(filename):
             else:
                 cleared_image[i][j] = 255
 
-    stars = calculate_angles.create_stars_list(cleared_image)
+    stars = constellations_geometry.create_stars_list(cleared_image)
     cleared_image = np.zeros((img.shape[0], img.shape[1]), np.uint8)
     for star in stars:
         cleared_image[star.y][star.x] = 255
-    # kernel = np.ones((2, 2), np.uint8)
-
-    # cleared_image = cv2.dilate(cleared_image, kernel)
 
     cv2.imwrite(fr"{dest_dir}\{filename}", cleared_image)
-
-for file in os.listdir(src_dir):
-    clear_constellation_image(file)
