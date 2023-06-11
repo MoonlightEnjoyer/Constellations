@@ -27,24 +27,20 @@ def create_stars_database():
         for filename in os.listdir(ref_dir):
             image = cv2.imread(f'{ref_dir}/{filename}', cv2.IMREAD_UNCHANGED)
             stars = clear_user_images.create_stars_list(image)
-            counter = 0
-            stop = False
-            for i in range(len(stars)):
-                if stop:
-                    break
-                for j in range(i + 1, len(stars)):
-                    if stop:
-                        break
-                    for k in range(j + 1, len(stars)):
-                        if stop:
-                            break
-                        ang1, ang2, ang3 = constellations_geometry.calculate_angles(stars[i], stars[j], stars[k])
-                        if ang1 != None:
-                            stars_database.write(f'{filename[:-4]},{ang1},{ang2},{ang3}\n')
-                            database.append(Triangle(filename[:-4], ang1, ang2, ang3))
-                            counter += 1
-                        if counter == 3:
-                            stop = True
+            for i in range(0, len(stars), 3):
+
+                j = i + 1
+                k = j + 1
+
+                if i + 1 >= len(stars):
+                    j = 0
+                if i + 2 >= len(stars):
+                    k = 1
+
+                ang1, ang2, ang3 = constellations_geometry.calculate_angles(stars[i], stars[j], stars[k])
+                if ang1 != None:
+                    stars_database.write(f'{filename[:-4]},{ang1},{ang2},{ang3}\n')
+                    database.append(Triangle(filename[:-4], ang1, ang2, ang3))
     return database
 
 def get_precise_triangles(image) -> list[PreciseTriangle]:

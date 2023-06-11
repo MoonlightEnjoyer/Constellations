@@ -32,7 +32,7 @@ class Triangle:
         for angle in angles:
             equal = False
             for angle_self in angles_self:
-                if math.isclose(angle, angle_self, abs_tol=0.0001):
+                if math.isclose(angle, angle_self, abs_tol=0.0000001):
                     equal = True
             if not equal:
                 return False
@@ -44,13 +44,13 @@ class PreciseTriangle:
         self.vertices = [ang1, ang2, ang3]
     
     def are_similar(self, triangle: Triangle) -> bool:
-        angles_self = [self.vertices[0][0], self.vertices[1][0], self.vertices[2][0]]
         angles = [triangle.ang1, triangle.ang2, triangle.ang3]
+        angles_self = [self.vertices[0][0], self.vertices[1][0], self.vertices[2][0]]
         
         for angle in angles:
             equal = False
             for angle_self in angles_self:
-                if math.isclose(angle, angle_self, abs_tol=0.0001):
+                if math.isclose(angle, angle_self, abs_tol=0.0000001):
                     equal = True
             if not equal:
                 return False
@@ -90,12 +90,6 @@ def create_stars_list(image) -> list[Star]:
     for i in range(block_size_half, image.shape[0] - (block_size_half + 1)):
         for j in range(block_size_half, image.shape[1] - (block_size_half + 1)):
             if image[i][j] != 0:
-                contains = False
                 new_star = Star(j - block_size_half, i - block_size_half)
-                for star in stars:
-                    if calculate_distance(new_star, star) < 20:
-                        contains = True
-                        break
-                if not contains:
-                    stars.append(new_star)
+                stars.append(new_star)
     return stars
