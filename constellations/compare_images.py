@@ -6,9 +6,10 @@ def identify_constellation(source_image):
     stars = create_stars_list(source_image)
     database = constellations_database.load_database()
     constellations = {}
-    for i in range(len(stars)):
-        for j in range(i + 1, len(stars)):
-            for k in range(j + 1, len(stars)):
+    length = len(stars)
+    for i in range(length):
+        for j in range(i + 1, length):
+            for k in range(j + 1, length):
                 ang1, ang2, ang3 = calculate_angles(stars[i], stars[j], stars[k])
                 if ang1 != None:
                     new_triangle = Triangle("unknown", ang1, ang2, ang3)
@@ -24,7 +25,7 @@ def identify_constellation(source_image):
 
     return constellations
 
-def mark_constellation(constellation_name, stars, image):
+def mark_constellation(stars, image):
     result_image = np.zeros((image.shape[0], image.shape[1]), np.uint8)
 
     for star in stars:
