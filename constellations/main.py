@@ -14,11 +14,11 @@ def create_database():
     constellations_database.create_stars_database()
 
 def identify():
-    constellation_image = cv2.imread("./user_images_cleared/3.jpg", cv2.IMREAD_UNCHANGED)
-    constellations = compare_images.identify_constellation(constellation_image)
-    for item in constellations.items():
-        result_image = compare_images.mark_constellation(item[1], constellation_image)
-        cv2.imwrite(f'./results/{item[0]}.png', result_image)
+    constellation_image = cv2.imread("./user_images_cleared/6.jpg", cv2.IMREAD_UNCHANGED)
+    constellations = compare_images.identify_constellation_c(constellation_image)
+    # for item in constellations.items():
+    #     result_image = compare_images.mark_constellation(item[1], constellation_image)
+    #     cv2.imwrite(f'./results/{item[0]}.png', result_image)
         
 def clear_user():
     dir = fr"./user_images"

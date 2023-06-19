@@ -7,7 +7,7 @@ from constellations_geometry import Triangle, Star
 ref_dir = './reference_images'
 stars_database_path = './stars_database.txt'
 
-def load_database():
+def load_database() -> list[Triangle]:
     triangles = []
     with open("./stars_database.txt", "r") as stars_database:
         for raw_triangle_data in stars_database.readlines():
