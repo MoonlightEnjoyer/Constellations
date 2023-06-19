@@ -8,7 +8,6 @@
 #include <list>
 #include <algorithm>
 
-
 #ifndef  M_PI
 #define  M_PI  3.141592653589793238
 #endif
@@ -43,6 +42,10 @@ bool isclose(double value1, double value2, double precision)
 
 double calculate_distance(struct Star star1, struct Star star2)
 {
+    // printf("star1.x = %d\n", star1.x);
+    // printf("star1.y = %d\n", star1.y);
+    // printf("star2.x = %d\n", star2.x);
+    // printf("star2.y = %d\n", star2.y);
     return sqrt(pow(star1.x - star2.x, 2) + pow(star1.y - star2.y, 2));
 }
 
@@ -60,6 +63,10 @@ struct Triangle calculate_angles(struct Star star1, struct Star star2, struct St
     double b_angle = (180 / M_PI) * acos(b_cos);
     double c_angle = (180 / M_PI) * acos(c_cos);
 
+    // printf("a_angle = %f\n", a_angle);
+    // printf("b_angle = %f\n", b_angle);
+    // printf("c_angle = %f\n", c_angle);
+
     struct Triangle triangle;
     triangle.angles = (double*)malloc(sizeof(double) * 3);
     triangle.angles[0] = a_angle;
@@ -75,12 +82,20 @@ struct Triangle calculate_angles(struct Star star1, struct Star star2, struct St
 
 bool triangles_are_equal(struct Triangle tr1, struct Triangle tr2)
 {
-    return tr1.angles[0] == tr2.angles[0] && tr1.angles[1] == tr2.angles[1] && tr1.angles[2] == tr2.angles[2];
+    // printf("Inside c code: inside triangles comparison\n");
+    // printf("tr2_angle1= %f\n", tr2.angles[0]);
+    // printf("tr2_angle2 = %f\n", tr2.angles[1]);
+    // printf("tr2_angle3 = %f\n", tr2.angles[2]);
+
+    double precision = 0.0001;
+
+    return isclose(tr1.angles[0], tr2.angles[0], precision) && isclose(tr1.angles[1], tr2.angles[1], precision) && isclose(tr1.angles[2], tr2.angles[2], precision);
 }
 
+extern "C"
 struct Constellation* identify_constellation(int stars_length, struct Star stars[], int database_length, struct Triangle database[])
 {
-    printf("Inside c code: identify_constellation\n");
+    //printf("Inside c code: identify_constellation\n");
     struct Constellation* result_constellations;
     map<std::string, std::list<struct Star>> constellations_map;
 
@@ -91,11 +106,16 @@ struct Constellation* identify_constellation(int stars_length, struct Star stars
         {
             for (int k = j + 1; k < stars_length; k++)
             {
+                //printf("Inside c code: before stars read\n");
                 struct Triangle new_triangle = calculate_angles(stars[i], stars[j], stars[k]);
+                //printf("Inside c code: after calculate_angles: %f, %f, %f\n", new_triangle.angles[0], new_triangle.angles[1], new_triangle.angles[2]);
+                //printf("Inside c code: after stars read\n");
                 for (int r = 0; r < database_length; r++)
                 {
+                    //printf("Inside c code: before triangles comparison: r = %d\n", r);
                     if (triangles_are_equal(new_triangle, database[r]))
                     {
+                        //printf("Inside c code: triangles are equal\n");
                         if (constellations_map.count(database[r].constellation_name) == 0)
                         {
                             list<struct Star> new_list;
@@ -106,10 +126,14 @@ struct Constellation* identify_constellation(int stars_length, struct Star stars
                         constellations_map[database[r].constellation_name].insert(constellations_map[database[r].constellation_name].end(), stars[j]);
                         constellations_map[database[r].constellation_name].insert(constellations_map[database[r].constellation_name].end(), stars[k]);
                     }
+
+                    //printf("Inside c code: after triangles comparison\n");
                 }
             }
         } 
     }
+
+    printf("Inside c code: after iterations\n");
 
     result_constellations = (struct Constellation*)malloc(sizeof(struct Constellation) * constellations_map.size());
     int i = 0;
