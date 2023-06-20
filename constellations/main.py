@@ -16,8 +16,6 @@ def create_database():
 def identify():
     constellation_image = cv2.imread("./user_images_cleared/6.jpg", cv2.IMREAD_UNCHANGED)
     constellations = compare_images.identify_constellation_c(constellation_image)
-    print("After identify_constellations call inside main.py")
-    print(type(constellations))
     for item in constellations.items():
         result_image = compare_images.mark_constellation(item[1], constellation_image)
         cv2.imwrite(f'./results/{item[0]}.png', result_image)

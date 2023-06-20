@@ -78,8 +78,6 @@ def identify_constellation_c(source_image):
 
     database_struct_pointer = ctypes.cast(database_struct, ctypes.POINTER(Triangle_struct))
 
-    print("Before c call.")
-
     constellations_array_type = Constellation_struct * 0
     constellations_struct = constellations_array_type()
     constellations_pointer = ctypes.pointer(constellations_struct)
@@ -90,32 +88,22 @@ def identify_constellation_c(source_image):
 
     constellations_pointer = _identify_constellations.identify_constellation(ctypes.c_int(len(stars)), stars_struct_pointer, ctypes.c_int(len(database)), database_struct_pointer)
 
-
-    # for i in range(length):
-    #     for j in range(i + 1, length):
-    #         for k in range(j + 1, length):
-    #             ang1, ang2, ang3 = calculate_angles(stars[i], stars[j], stars[k])
-    #             if ang1 != None:
-    #                 new_triangle = Triangle("unknown", ang1, ang2, ang3)
-    #                 for database_triangle in database:
-    #                     if new_triangle == database_triangle:
-    #                         if not constellations.__contains__(database_triangle.constellation_name):
-    #                             constellations[database_triangle.constellation_name] = []
-    #                             print(database_triangle.constellation_name)
-    #                         constellations[database_triangle.constellation_name].append(stars[i])
-    #                         constellations[database_triangle.constellation_name].append(stars[j])
-    #                         constellations[database_triangle.constellation_name].append(stars[k])
                             
-    print("After c call.")
-
     constellations = {}
 
-    for i in range(4):
-        name = (constellations_pointer[i].name[:constellations_pointer[i].name_length]).decode('utf-8')
+    counter = 0
+
+    while True:
+        if (constellations_pointer[counter].name_length == 0):
+            break
+
+        name = (constellations_pointer[counter].name[:constellations_pointer[counter].name_length]).decode('utf-8')
 
         constellations[name] = []
-        for j in range(constellations_pointer[i].stars_length):
-            constellations[name].append(Star(constellations_pointer[i].stars[j].x, constellations_pointer[i].stars[j].y))
+        for j in range(constellations_pointer[counter].stars_length):
+            constellations[name].append(Star(constellations_pointer[counter].stars[j].x, constellations_pointer[counter].stars[j].y))
+
+        counter += 1
 
     return constellations
 
