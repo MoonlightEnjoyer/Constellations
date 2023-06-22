@@ -2,6 +2,7 @@ from constellations_geometry import *
 import constellations_database
 import numpy as np
 import ctypes
+import platform
 
 class Star_struct(ctypes.Structure):
     _fields_ = [
@@ -12,7 +13,7 @@ class Star_struct(ctypes.Structure):
 class Triangle_struct(ctypes.Structure):
     _fields_ = [
         ('constellation_name', ctypes.c_char_p),
-        ('angles', ctypes.POINTER(ctypes.c_double))
+        ('angles', ctypes.POINTER(ctypes.c_float))
     ]
 
 class Constellation_struct(ctypes.Structure):
@@ -23,8 +24,10 @@ class Constellation_struct(ctypes.Structure):
         ('stars_length', ctypes.c_int)
     ]
 
-
-_identify_constellations = ctypes.CDLL('./libconstellations.so')
+if platform.system() == 'Linux':
+    _identify_constellations = ctypes.CDLL('./libconstellations.so')
+elif platform.system() == 'Windows':
+    _identify_constellations = ctypes.CDLL('./libconstellations.dll')
 _identify_constellations.identify_constellation.restype = ctypes.POINTER(Constellation_struct)
 _identify_constellations.identify_constellation.argtypes = (ctypes.c_int, ctypes.POINTER(Star_struct), ctypes.c_int, ctypes.POINTER(Triangle_struct))
 
@@ -73,7 +76,7 @@ def identify_constellation_c(source_image):
     
     for i in range(len(database)):
         database_struct[i].constellation_name = database[i].constellation_name.encode('utf-8')
-        angles_array = ctypes.c_double * 3
+        angles_array = ctypes.c_float * 3
         database_struct[i].angles = angles_array(*database[i].angles)
 
     database_struct_pointer = ctypes.cast(database_struct, ctypes.POINTER(Triangle_struct))

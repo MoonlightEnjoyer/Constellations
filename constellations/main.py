@@ -5,6 +5,8 @@ import cv2
 import compare_images
 import clear_user_images
 
+from memory_profiler import profile
+
 def clear_reference():
     src_dir = './visualization(named stars)'
     for file in os.listdir(src_dir):
@@ -13,8 +15,9 @@ def clear_reference():
 def create_database():
     constellations_database.create_stars_database()
 
+@profile
 def identify():
-    constellation_image = cv2.imread("./user_images_cleared/6.jpg", cv2.IMREAD_UNCHANGED)
+    constellation_image = cv2.imread("./user_images_cleared/5.jpg", cv2.IMREAD_UNCHANGED)
     constellations = compare_images.identify_constellation_c(constellation_image)
     for item in constellations.items():
         result_image = compare_images.mark_constellation(item[1], constellation_image)
