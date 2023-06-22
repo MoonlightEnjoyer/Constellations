@@ -53,4 +53,15 @@ def create_stars_list(image) -> list[Star]:
         for j in range(image.shape[1]):
             if image[i][j] != 0:
                 stars.append(Star(j, i))
-    return stars
+
+    
+    cleared_stars = []
+    for star in stars:
+        ok = True
+        for star_1 in cleared_stars:
+            if calculate_distance(star, star_1) < 15:
+                ok = False
+        if ok:
+            cleared_stars.append(star)
+
+    return cleared_stars

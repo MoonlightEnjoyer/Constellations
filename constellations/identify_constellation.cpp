@@ -74,7 +74,7 @@ struct Triangle calculate_angles(struct Star star1, struct Star star2, struct St
 
 bool triangles_are_equal(struct Triangle tr1, struct Triangle tr2)
 {
-    float precision = 0.0001;
+    float precision = 0.00001;
 
     return isclose(tr1.angles[0], tr2.angles[0], precision) && isclose(tr1.angles[1], tr2.angles[1], precision) && isclose(tr1.angles[2], tr2.angles[2], precision);
 }
