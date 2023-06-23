@@ -1,0 +1,24 @@
+Filename: main.py
+
+Line #    Mem usage    Increment  Occurrences   Line Contents
+=============================================================
+    18    118.9 MiB    118.9 MiB           1   @profile
+    19                                         def identify():
+    20    121.8 MiB      2.9 MiB           1       constellation_image = cv2.imread("./user_images_cleared/3.jpg", cv2.IMREAD_UNCHANGED)
+    21   5153.3 MiB   5031.5 MiB           1       constellations = compare_images.identify_constellation(constellation_image)
+    22   5156.8 MiB      0.0 MiB          81       for item in constellations.items():
+    23   5156.8 MiB      2.9 MiB          80           result_image = compare_images.mark_constellation(item[1], constellation_image)
+    24   5156.8 MiB      0.6 MiB          80           cv2.imwrite(f'./results/{item[0]}.png', result_image)
+
+
+         7808430 function calls (7723973 primitive calls) in 157.824 seconds
+
+   Ordered by: internal time
+
+   ncalls  tottime  percall  cumtime  percall filename:lineno(function)
+        1  139.598  139.598  156.496  156.496 compare_images.py:59(identify_constellation)
+    82299    3.862    0.000    4.710    0.000 inspect.py:2926(_bind)
+    82272    1.168    0.000    1.534    0.000 inspect.py:2665(args)
+    82268    1.122    0.000    1.328    0.000 inspect.py:2688(kwargs)
+     4159    0.864    0.000    1.095    0.000 ffi.py:150(__call__)
+

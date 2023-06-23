@@ -1,0 +1,30 @@
+python3 -m cProfile -s time  main.py 
+Filename: main.py
+
+Line #    Mem usage    Increment  Occurrences   Line Contents
+=============================================================
+    18     59.2 MiB     59.2 MiB           1   @profile
+    19                                         def identify():
+    20     61.5 MiB      2.3 MiB           1       constellation_image = cv2.imread("./reference_images/Andromeda.png", cv2.IMREAD_UNCHANGED)
+    21    145.0 MiB     83.5 MiB           1       constellations = compare_images.identify_constellation_c(constellation_image)
+    22    145.0 MiB      0.0 MiB           7       for item in constellations.items():
+    23    145.0 MiB      0.0 MiB           6           result_image = compare_images.mark_constellation(item[1], constellation_image)
+    24    145.0 MiB      0.0 MiB           6           cv2.imwrite(f'./results/{item[0]}.png', result_image)
+
+
+         1439562 function calls (1435421 primitive calls) in 15.574 seconds
+
+   Ordered by: internal time
+
+   ncalls  tottime  percall  cumtime  percall filename:lineno(function)
+        1    7.137    7.137   11.756   11.756 compare_images.py:58(identify_constellation_c)
+       25    2.323    0.093    2.325    0.093 {built-in method _imp.create_dynamic}
+        1    2.206    2.206    2.206    2.206 constellations_geometry.py:50(create_stars_list)
+   124585    0.717    0.000    1.547    0.000 dispatcher.py:429(__call__)
+      187    0.556    0.003    0.556    0.003 {method 'read' of '_io.BufferedReader' objects}
+   124585    0.475    0.000    0.520    0.000 constellations_geometry.py:20(__init__)
+        1    0.339    0.339    2.231    2.231 constellations_database.py:10(load_database)
+        1    0.207    0.207    0.207    0.207 {imread}
+   124585    0.193    0.000    0.193    0.000 dispatcher.py:424(__get__)
+   124585    0.156    0.000    0.156    0.000 dispatcher.py:300(dispatch)
+   124585    0.154    0.000    0.154    0.000 dispatcher.py:430(<listcomp>)

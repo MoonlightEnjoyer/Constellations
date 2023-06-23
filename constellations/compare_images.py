@@ -3,6 +3,7 @@ import constellations_database
 import numpy as np
 import ctypes
 import platform
+from numba import njit
 
 class Star_struct(ctypes.Structure):
     _fields_ = [
@@ -32,32 +33,34 @@ _identify_constellations.identify_constellation.restype = ctypes.POINTER(Constel
 _identify_constellations.identify_constellation.argtypes = (ctypes.c_int, ctypes.POINTER(Star_struct), ctypes.c_int, ctypes.POINTER(Triangle_struct))
 
 
+# def identify_constellation(source_image):
+#     stars = create_stars_list(source_image)
+#     database = constellations_database.load_database()
+#     constellations = {}
+#     length = len(stars)
+#     for i in range(length):
+#         for j in range(i + 1, length):
+#             for k in range(j + 1, length):
+#                 ang1, ang2, ang3 = calculate_angles(stars[i], stars[j], stars[k])
+#                 if ang1 != None:
+#                     new_triangle = Triangle("unknown", ang1, ang2, ang3)
+#                     for database_triangle in database:
+#                         if new_triangle == database_triangle:
+#                             if not constellations.__contains__(database_triangle.constellation_name):
+#                                 constellations[database_triangle.constellation_name] = []
+#                                 print(database_triangle.constellation_name)
+#                             constellations[database_triangle.constellation_name].append(stars[i])
+#                             constellations[database_triangle.constellation_name].append(stars[j])
+#                             constellations[database_triangle.constellation_name].append(stars[k])
+                            
+
+#     return constellations
+
 def identify_constellation(source_image):
     stars = create_stars_list(source_image)
     database = constellations_database.load_database()
-    constellations = {}
-    length = len(stars)
-    for i in range(length):
-        for j in range(i + 1, length):
-            for k in range(j + 1, length):
-                ang1, ang2, ang3 = calculate_angles(stars[i], stars[j], stars[k])
-                if ang1 != None:
-                    new_triangle = Triangle("unknown", ang1, ang2, ang3)
-                    for database_triangle in database:
-                        if new_triangle == database_triangle:
-                            if not constellations.__contains__(database_triangle.constellation_name):
-                                constellations[database_triangle.constellation_name] = []
-                                print(database_triangle.constellation_name)
-                            constellations[database_triangle.constellation_name].append(stars[i])
-                            constellations[database_triangle.constellation_name].append(stars[j])
-                            constellations[database_triangle.constellation_name].append(stars[k])
-                            
 
-    return constellations
-
-def identify_constellation_c(source_image):
-    stars = create_stars_list(source_image)
-    database = constellations_database.load_database()
+    database.sort(key=lambda x : x.angles[0])
 
     global _identify_constellations
 

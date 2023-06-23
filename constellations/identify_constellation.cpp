@@ -79,6 +79,36 @@ bool triangles_are_equal(struct Triangle tr1, struct Triangle tr2)
     return isclose(tr1.angles[0], tr2.angles[0], precision) && isclose(tr1.angles[1], tr2.angles[1], precision) && isclose(tr1.angles[2], tr2.angles[2], precision);
 }
 
+char* triangles_binary_search(Triangle triangle, Triangle* array, int start, int end)
+{
+    int middle = (start + end) / 2;
+
+    if (middle == start)
+    {
+        if (triangles_are_equal(triangle, array[middle]))
+        {
+            return array[middle].constellation_name;
+        }
+        else
+        {
+            return nullptr;
+        }
+    }
+
+    char* triangle_name;
+
+    if (triangle.angles[0] < array[middle].angles[0])
+    {
+        triangle_name = triangles_binary_search(triangle, array, start, middle);
+    }
+    else
+    {
+        triangle_name = triangles_binary_search(triangle, array, middle, end);
+    }
+
+    return triangle_name;
+}
+
 extern "C"
 struct Constellation* identify_constellation(int stars_length, struct Star stars[], int database_length, struct Triangle database[])
 {
@@ -93,22 +123,20 @@ struct Constellation* identify_constellation(int stars_length, struct Star stars
             for (int k = j + 1; k < stars_length; k++)
             {
                 struct Triangle new_triangle = calculate_angles(stars[i], stars[j], stars[k]);
-                for (int r = 0; r < database_length; r++)
+
+                char* cons_name = triangles_binary_search(new_triangle, database, 0, database_length);
+
+                if (cons_name != nullptr)
                 {
-                    if (triangles_are_equal(new_triangle, database[r]))
+                    if (constellations_map.count(cons_name) == 0)
                     {
-                        if (constellations_map.count(database[r].constellation_name) == 0)
-                        {
-                            
-
-                            list<struct Star> new_list;
-                            constellations_map.insert({database[r].constellation_name, new_list});
-                        }
-
-                        constellations_map[database[r].constellation_name].insert(constellations_map[database[r].constellation_name].end(), stars[i]);
-                        constellations_map[database[r].constellation_name].insert(constellations_map[database[r].constellation_name].end(), stars[j]);
-                        constellations_map[database[r].constellation_name].insert(constellations_map[database[r].constellation_name].end(), stars[k]);
+                        list<struct Star> new_list;
+                        constellations_map.insert({cons_name, new_list});
                     }
+
+                    constellations_map[cons_name].insert(constellations_map[cons_name].end(), stars[i]);
+                    constellations_map[cons_name].insert(constellations_map[cons_name].end(), stars[j]);
+                    constellations_map[cons_name].insert(constellations_map[cons_name].end(), stars[k]);
                 }
             }
         } 
@@ -116,16 +144,23 @@ struct Constellation* identify_constellation(int stars_length, struct Star stars
 
     result_constellations = (struct Constellation*)malloc(sizeof(struct Constellation) * (constellations_map.size() + 1));
     int i = 0;
-    for (auto it = constellations_map.begin(); it != constellations_map.end(); ++it, i++)
+    int j;
+    struct Star temp_star;
+
+    auto iterator_end = constellations_map.end();
+
+    for (auto it = constellations_map.begin(); it != iterator_end; ++it, i++)
     {
         result_constellations[i].name = (char*)malloc(it->first.size());
         strcpy(result_constellations[i].name, (char*)it->first.c_str());
         result_constellations[i].name_length = it->first.size();
         result_constellations[i].stars = (struct Star*)malloc(sizeof(struct Star) * it->second.size());
-        int j = 0;
-        for (auto st_it = it->second.begin(); st_it != it->second.end(); ++st_it, j++)
+        j = 0;
+
+        auto stars_iterator_end = it->second.end();
+
+        for (auto st_it = it->second.begin(); st_it != stars_iterator_end; ++st_it, j++)
         {
-            struct Star temp_star;
             temp_star.x = st_it->x;
             temp_star.y = st_it->y;
             result_constellations[i].stars[j] = temp_star;
