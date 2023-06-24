@@ -60,7 +60,7 @@ struct Triangle calculate_angles(struct Star star1, struct Star star2, struct St
     float c_angle = (180 / M_PI) * acos(c_cos);
 
     struct Triangle triangle;
-    triangle.angles = (float*)malloc(sizeof(float) * 3);
+    triangle.angles = new float[3];
     triangle.angles[0] = a_angle;
     triangle.angles[1] = b_angle;
     triangle.angles[2] = c_angle;
@@ -138,6 +138,8 @@ struct Constellation* identify_constellation(int stars_length, struct Star stars
                     constellations_map[cons_name].insert(constellations_map[cons_name].end(), stars[j]);
                     constellations_map[cons_name].insert(constellations_map[cons_name].end(), stars[k]);
                 }
+
+                delete[] new_triangle.angles;
             }
         } 
     }
