@@ -1,16 +1,21 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stdio.h>
-#include <math.h>
+//#include <math.h>
 #include <string.h>
 #include <iostream>
 #include <map>
 #include <list>
 #include <algorithm>
+#include <chrono>
+#include <cmath>
 
 #ifndef  M_PI
 #define  M_PI  3.141592653589793238
 #endif
+
+
+#define RAD2DEG_COEF 180 / M_PI
 
 using namespace std;
 
@@ -42,10 +47,12 @@ bool isclose(float value1, float value2, float precision)
 
 float calculate_distance(struct Star star1, struct Star star2)
 {
-    return sqrt(pow(star1.x - star2.x, 2) + pow(star1.y - star2.y, 2));
+    int diff_x = star1.x - star2.x;
+    int diff_y = star1.y - star2.y;
+    return sqrt(diff_x * diff_x + diff_y * diff_y);
 }
 
-struct Triangle calculate_angles(struct Star star1, struct Star star2, struct Star star3)
+inline struct Triangle calculate_angles(struct Star star1, struct Star star2, struct Star star3)
 {
     float a = calculate_distance(star1, star2);
     float b = calculate_distance(star2, star3);
@@ -55,9 +62,9 @@ struct Triangle calculate_angles(struct Star star1, struct Star star2, struct St
     float b_cos = (a * a + c * c - b * b) / (2 * a * c);
     float c_cos = (a * a + b * b - c * c) / (2 * a * b);
 
-    float a_angle = (180 / M_PI) * acos(a_cos);
-    float b_angle = (180 / M_PI) * acos(b_cos);
-    float c_angle = (180 / M_PI) * acos(c_cos);
+    float a_angle = RAD2DEG_COEF * acos(a_cos);
+    float b_angle = RAD2DEG_COEF * acos(b_cos);
+    float c_angle = RAD2DEG_COEF * acos(c_cos);
 
     struct Triangle triangle;
     triangle.angles = new float[3];
@@ -66,8 +73,6 @@ struct Triangle calculate_angles(struct Star star1, struct Star star2, struct St
     triangle.angles[2] = c_angle;
 
     sort(triangle.angles, triangle.angles + 3);
-
-    triangle.constellation_name = "";
 
     return triangle;
 }
@@ -112,9 +117,14 @@ char* triangles_binary_search(Triangle triangle, Triangle* array, int start, int
 extern "C"
 struct Constellation* identify_constellation(int stars_length, struct Star stars[], int database_length, struct Triangle database[])
 {
+    using namespace std::chrono;
+    auto t1_s = high_resolution_clock::now();
     struct Constellation* result_constellations;
     map<std::string, std::list<struct Star>> constellations_map;
 
+    struct Triangle new_triangle;
+
+    auto t2_s = high_resolution_clock::now();
 
     for (int i = 0; i < stars_length; i++)
     {
@@ -122,7 +132,7 @@ struct Constellation* identify_constellation(int stars_length, struct Star stars
         {
             for (int k = j + 1; k < stars_length; k++)
             {
-                struct Triangle new_triangle = calculate_angles(stars[i], stars[j], stars[k]);
+                new_triangle = calculate_angles(stars[i], stars[j], stars[k]);
 
                 char* cons_name = triangles_binary_search(new_triangle, database, 0, database_length);
 
@@ -144,12 +154,19 @@ struct Constellation* identify_constellation(int stars_length, struct Star stars
         } 
     }
 
+    auto t2_e = high_resolution_clock::now();
+
+    auto time_2 = duration_cast<duration<double>>(t2_e - t2_s);
+    std::cout << "nested loops execution time: " << time_2.count() << " seconds." << endl;
+
     result_constellations = (struct Constellation*)malloc(sizeof(struct Constellation) * (constellations_map.size() + 1));
     int i = 0;
     int j;
     struct Star temp_star;
 
     auto iterator_end = constellations_map.end();
+
+    auto t3_s = high_resolution_clock::now();
 
     for (auto it = constellations_map.begin(); it != iterator_end; ++it, i++)
     {
@@ -172,6 +189,16 @@ struct Constellation* identify_constellation(int stars_length, struct Star stars
     }
 
     result_constellations[i].name_length = 0;
+
+    auto t3_e = high_resolution_clock::now();
+    
+    auto time_3 = duration_cast<duration<double>>(t3_e - t3_s);
+    std::cout << "return value convertion execution time: " << time_3.count() << " seconds." << endl; 
+
+    auto t1_e = high_resolution_clock::now();
+
+    auto time_1 = duration_cast<duration<double>>(t1_e - t1_s);
+    std::cout << "identify_constellation execution time: " << time_1.count() << " seconds." << endl; 
 
     return result_constellations;
 }

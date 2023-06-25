@@ -15,7 +15,7 @@ def clear_reference():
 def create_database():
     constellations_database.create_stars_database_full()
 
-@profile
+#@profile
 def identify():
     constellation_image = cv2.imread("./user_images_cleared/3.jpg", cv2.IMREAD_UNCHANGED)
     constellations = compare_images.identify_constellation(constellation_image)
