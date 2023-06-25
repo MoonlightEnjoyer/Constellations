@@ -4,7 +4,7 @@ from multipledispatch import dispatch
 from typing import Tuple
 from numba import njit
 from numba.experimental import jitclass
-from numba import int32, float32    # import the types
+from numba import int32
 
 precision = 0.0000001
 
@@ -40,6 +40,7 @@ class Triangle:
 def calculate_distance(point1: Star, point2: Star) -> float:
     return math.sqrt(((point1.x - point2.x) ** 2) + ((point1.y - point2.y) ** 2))
 
+@njit
 def calculate_angles(point1: Star, point2: Star, point3: Star) -> Tuple[float, float, float]:
     try:
         a = calculate_distance(point1, point2)

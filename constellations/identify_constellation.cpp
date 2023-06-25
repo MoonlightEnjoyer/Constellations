@@ -1,5 +1,5 @@
-#include <stdlib.h>
-#include <stdio.h>
+//#include <stdlib.h>
+//#include <stdio.h>
 #include <string.h>
 #include <iostream>
 #include <map>
@@ -45,7 +45,6 @@ struct MyNode
 struct Constellation
 {
     char* name;
-    //int name_length;
     struct Star* stars;
     int stars_length;
 };
@@ -134,10 +133,6 @@ struct Constellation* identify_constellation(int stars_length, struct Star stars
 
     struct Triangle new_triangle;
 
-    auto t2_s = high_resolution_clock::now();
-
-    long int counter = 0;
-
     for (int i = 0; i < stars_length; i++)
     {
         if (stars[i].x == -1)
@@ -159,8 +154,6 @@ struct Constellation* identify_constellation(int stars_length, struct Star stars
                     continue;
                 }
                 
-                counter++;
-
                 new_triangle = calculate_angles(stars[i], stars[j], stars[k]);
 
                 char* cons_name = triangles_binary_search(new_triangle, database, 0, database_length);
@@ -188,23 +181,12 @@ struct Constellation* identify_constellation(int stars_length, struct Star stars
         } 
     }
 
-    auto t2_e = high_resolution_clock::now();
-
-    std::cout << "stars array length: " << stars_length << std::endl;
-
-    std::cout << "Total number of iterations: " << counter << std::endl;
-
-    auto time_2 = duration_cast<duration<double>>(t2_e - t2_s);
-    std::cout << "nested loops execution time: " << time_2.count() << " seconds." << endl;
-
     result_constellations = (struct Constellation*)malloc(sizeof(struct Constellation) * (constellations_map.size() + 1));
     int i = 0;
     int j;
     struct Star temp_star;
 
     auto iterator_end = constellations_map.end();
-
-    auto t3_s = high_resolution_clock::now();
 
     for (auto it = constellations_map.begin(); it != iterator_end; ++it, i++)
     {
@@ -226,11 +208,6 @@ struct Constellation* identify_constellation(int stars_length, struct Star stars
     }
 
     result_constellations[i].stars_length = 0;
-
-    auto t3_e = high_resolution_clock::now();
-    
-    auto time_3 = duration_cast<duration<double>>(t3_e - t3_s);
-    std::cout << "return value convertion execution time: " << time_3.count() << " seconds." << endl; 
 
     auto t1_e = high_resolution_clock::now();
 

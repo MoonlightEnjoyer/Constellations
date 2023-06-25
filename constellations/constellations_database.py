@@ -2,7 +2,7 @@ import clear_user_images
 import constellations_geometry
 import os
 import cv2
-from constellations_geometry import Triangle, Star
+from constellations_geometry import Triangle
 
 ref_dir = './reference_images'
 stars_database_path = './stars_database.txt'
