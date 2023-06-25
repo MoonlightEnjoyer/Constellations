@@ -1,3 +1,0 @@
-1. Optimization
-2. Check constellations marking
-3. Add benchmarks
