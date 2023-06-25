@@ -1,7 +1,5 @@
-#include <stdbool.h>
 #include <stdlib.h>
 #include <stdio.h>
-//#include <math.h>
 #include <string.h>
 #include <iostream>
 #include <map>
@@ -21,8 +19,8 @@ using namespace std;
 
 struct Star
 {
-    int x;
-    int y;
+    short x;
+    short y;
 };
 
 struct Triangle
@@ -31,11 +29,23 @@ struct Triangle
     float* angles;
 };
 
+struct MyList
+{
+    struct MyNode* head;
+    struct MyNode* tail;
+};
+
+struct MyNode
+{
+    struct Star value;
+    struct MyNode* next;
+};
+
 
 struct Constellation
 {
     char* name;
-    int name_length;
+    //int name_length;
     struct Star* stars;
     int stars_length;
 };
@@ -47,8 +57,8 @@ bool isclose(float value1, float value2, float precision)
 
 float calculate_distance(struct Star star1, struct Star star2)
 {
-    int diff_x = star1.x - star2.x;
-    int diff_y = star1.y - star2.y;
+    short diff_x = star1.x - star2.x;
+    short diff_y = star1.y - star2.y;
     return sqrt(diff_x * diff_x + diff_y * diff_y);
 }
 
@@ -79,7 +89,7 @@ inline struct Triangle calculate_angles(struct Star star1, struct Star star2, st
 
 bool triangles_are_equal(struct Triangle tr1, struct Triangle tr2)
 {
-    float precision = 0.00001;
+    float precision = 0.0001;
 
     return isclose(tr1.angles[0], tr2.angles[0], precision) && isclose(tr1.angles[1], tr2.angles[1], precision) && isclose(tr1.angles[2], tr2.angles[2], precision);
 }
@@ -126,12 +136,31 @@ struct Constellation* identify_constellation(int stars_length, struct Star stars
 
     auto t2_s = high_resolution_clock::now();
 
+    long int counter = 0;
+
     for (int i = 0; i < stars_length; i++)
     {
+        if (stars[i].x == -1)
+        {
+            continue;
+        }
+
         for (int j = i + 1; j < stars_length; j++)
         {
+            if (stars[j].x == -1)
+            {
+                continue;
+            }
+
             for (int k = j + 1; k < stars_length; k++)
             {
+                if (stars[k].x == -1)
+                {
+                    continue;
+                }
+                
+                counter++;
+
                 new_triangle = calculate_angles(stars[i], stars[j], stars[k]);
 
                 char* cons_name = triangles_binary_search(new_triangle, database, 0, database_length);
@@ -147,6 +176,11 @@ struct Constellation* identify_constellation(int stars_length, struct Star stars
                     constellations_map[cons_name].insert(constellations_map[cons_name].end(), stars[i]);
                     constellations_map[cons_name].insert(constellations_map[cons_name].end(), stars[j]);
                     constellations_map[cons_name].insert(constellations_map[cons_name].end(), stars[k]);
+
+                    if (k < (stars_length - 3))
+                    {
+                        stars[k].x = -1;
+                    }
                 }
 
                 delete[] new_triangle.angles;
@@ -155,6 +189,10 @@ struct Constellation* identify_constellation(int stars_length, struct Star stars
     }
 
     auto t2_e = high_resolution_clock::now();
+
+    std::cout << "stars array length: " << stars_length << std::endl;
+
+    std::cout << "Total number of iterations: " << counter << std::endl;
 
     auto time_2 = duration_cast<duration<double>>(t2_e - t2_s);
     std::cout << "nested loops execution time: " << time_2.count() << " seconds." << endl;
@@ -170,9 +208,8 @@ struct Constellation* identify_constellation(int stars_length, struct Star stars
 
     for (auto it = constellations_map.begin(); it != iterator_end; ++it, i++)
     {
-        result_constellations[i].name = (char*)malloc(it->first.size());
+        result_constellations[i].name = (char*)malloc(it->first.size() + 1);
         strcpy(result_constellations[i].name, (char*)it->first.c_str());
-        result_constellations[i].name_length = it->first.size();
         result_constellations[i].stars = (struct Star*)malloc(sizeof(struct Star) * it->second.size());
         j = 0;
 
@@ -188,7 +225,7 @@ struct Constellation* identify_constellation(int stars_length, struct Star stars
         result_constellations[i].stars_length = it->second.size();
     }
 
-    result_constellations[i].name_length = 0;
+    result_constellations[i].stars_length = 0;
 
     auto t3_e = high_resolution_clock::now();
     

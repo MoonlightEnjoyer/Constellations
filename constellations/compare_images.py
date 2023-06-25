@@ -7,8 +7,8 @@ from numba import njit
 
 class Star_struct(ctypes.Structure):
     _fields_ = [
-        ('x', ctypes.c_int),
-        ('y', ctypes.c_int)
+        ('x', ctypes.c_int16),
+        ('y', ctypes.c_int16)
     ]
 
 class Triangle_struct(ctypes.Structure):
@@ -20,7 +20,7 @@ class Triangle_struct(ctypes.Structure):
 class Constellation_struct(ctypes.Structure):
     _fields_ = [
         ('name', ctypes.POINTER(ctypes.c_char)),
-        ('name_length', ctypes.c_int),
+        #('name_length', ctypes.c_int),
         ('stars', ctypes.POINTER(Star_struct)),
         ('stars_length', ctypes.c_int)
     ]
@@ -98,12 +98,17 @@ def identify_constellation(source_image):
     constellations = {}
 
     counter = 0
+    null_terminator = '\0'.encode('utf-8')
 
     while True:
-        if (constellations_pointer[counter].name_length == 0):
+        if (constellations_pointer[counter].stars_length == 0):
             break
 
-        name = (constellations_pointer[counter].name[:constellations_pointer[counter].name_length]).decode('utf-8')
+        name_iterator = 0
+        while constellations_pointer[counter].name[name_iterator] != null_terminator:
+            name_iterator += 1
+
+        name = (constellations_pointer[counter].name[:name_iterator]).decode('utf-8')
 
         constellations[name] = []
         for j in range(constellations_pointer[counter].stars_length):
