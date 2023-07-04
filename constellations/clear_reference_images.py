@@ -2,7 +2,6 @@ import cv2
 import numpy as np
 import constellations_geometry
 
-
 def clear_constellation_image(source_path, destination_path):
     img = cv2.imread(source_path,cv2.IMREAD_UNCHANGED)
     cleared_image = np.zeros((img.shape[0], img.shape[1]), np.uint8)
@@ -17,6 +16,7 @@ def clear_constellation_image(source_path, destination_path):
 
     stars = constellations_geometry.create_stars_list(cleared_image)
     cleared_image = np.zeros((img.shape[0], img.shape[1]), np.uint8)
+
     for star in stars:
         cleared_image[star.y][star.x] = 255
 

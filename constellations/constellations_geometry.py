@@ -2,9 +2,18 @@ import math
 import numpy as np
 from multipledispatch import dispatch
 from typing import Tuple
+from numba import njit
+from numba.experimental import jitclass
+from numba import int32
 
 precision = 0.0000001
 
+spec_star = [
+    ('x', int32),
+    ('y', int32)
+]
+
+@jitclass(spec_star)
 class Star:
     def __init__(self, x, y):
         self.x = x
@@ -27,9 +36,11 @@ class Triangle:
     def __eq__(self, __value: object):
         return math.isclose(self.angles[0], __value.angles[0], abs_tol=precision) and math.isclose(self.angles[1], __value.angles[1], abs_tol=precision) and  math.isclose(self.angles[2], __value.angles[2], abs_tol=precision)
         
+@njit
 def calculate_distance(point1: Star, point2: Star) -> float:
     return math.sqrt(((point1.x - point2.x) ** 2) + ((point1.y - point2.y) ** 2))
 
+@njit
 def calculate_angles(point1: Star, point2: Star, point3: Star) -> Tuple[float, float, float]:
     try:
         a = calculate_distance(point1, point2)
@@ -46,11 +57,23 @@ def calculate_angles(point1: Star, point2: Star, point3: Star) -> Tuple[float, f
         return b_angle, c_angle, a_angle
     except Exception:
         return None, None, None
-    
+
+@njit
 def create_stars_list(image) -> list[Star]:
     stars = []
     for i in range(image.shape[0]):
         for j in range(image.shape[1]):
             if image[i][j] != 0:
                 stars.append(Star(j, i))
-    return stars
+
+    
+    cleared_stars = []
+    for star in stars:
+        ok = True
+        for star_1 in cleared_stars:
+            if calculate_distance(star, star_1) < 15:
+                ok = False
+        if ok:
+            cleared_stars.append(star)
+
+    return cleared_stars
