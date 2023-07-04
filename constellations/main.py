@@ -8,7 +8,7 @@ import clear_user_images
 from memory_profiler import profile
 
 def clear_reference():
-    src_dir = './visualization(named stars)'
+    src_dir = './database_images_improved'
     for file in os.listdir(src_dir):
         clear_reference_images.clear_constellation_image(f'{src_dir}/{file}', f'./reference_images/{file[:-3]}png')
 
@@ -32,4 +32,4 @@ def clear_user():
         cv2.imwrite(fr"{cleared_dir}/{filename}", user_image)
 
 
-identify()
+clear_reference()

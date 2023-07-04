@@ -71,7 +71,7 @@ def create_stars_list(image) -> list[Star]:
     for star in stars:
         ok = True
         for star_1 in cleared_stars:
-            if calculate_distance(star, star_1) < 15:
+            if calculate_distance(star, star_1) < 20:
                 ok = False
         if ok:
             cleared_stars.append(star)
