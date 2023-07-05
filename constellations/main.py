@@ -32,4 +32,4 @@ def clear_user():
         cv2.imwrite(fr"{cleared_dir}/{filename}", user_image)
 
 
-create_database()
+clear_reference()
