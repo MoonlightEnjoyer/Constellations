@@ -8,9 +8,9 @@ import clear_user_images
 from memory_profiler import profile
 
 def clear_reference():
-    src_dir = './database_images_improved'
+    src_dir = './database_source_images'
     for file in os.listdir(src_dir):
-        clear_reference_images.clear_constellation_image(f'{src_dir}/{file}', f'./reference_images/{file[:-3]}png')
+        clear_reference_images.clear_constellation_image(f'{src_dir}/{file}', f'./reference_images/{file[:-3]}png', file)
 
 def create_database():
     constellations_database.create_stars_database_full()
