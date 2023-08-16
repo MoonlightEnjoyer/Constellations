@@ -1,5 +1,3 @@
-//#include <stdlib.h>
-//#include <stdio.h>
 #include <string.h>
 #include <iostream>
 #include <map>
@@ -88,7 +86,7 @@ inline struct Triangle calculate_angles(struct Star star1, struct Star star2, st
 
 bool triangles_are_equal(struct Triangle tr1, struct Triangle tr2)
 {
-    float precision = 1;
+    float precision = 0.2;
 
     return isclose(tr1.angles[0], tr2.angles[0], precision) && isclose(tr1.angles[1], tr2.angles[1], precision) && isclose(tr1.angles[2], tr2.angles[2], precision);
 }
@@ -135,25 +133,10 @@ struct Constellation* identify_constellation(int stars_length, struct Star stars
 
     for (int i = 0; i < stars_length; i++)
     {
-        // if (stars[i].x == -1)
-        // {
-        //     continue;
-        // }
-
         for (int j = i + 1; j < stars_length; j++)
-        {
-            // if (stars[j].x == -1)
-            // {
-            //     continue;
-            // }
-
+        { 
             for (int k = j + 1; k < stars_length; k++)
             {
-                // if (stars[k].x == -1)
-                // {
-                //     continue;
-                // }
-                
                 new_triangle = calculate_angles(stars[i], stars[j], stars[k]);
 
                 char* cons_name = triangles_binary_search(new_triangle, database, 0, database_length);
@@ -169,11 +152,6 @@ struct Constellation* identify_constellation(int stars_length, struct Star stars
                     constellations_map[cons_name].insert(constellations_map[cons_name].end(), stars[i]);
                     constellations_map[cons_name].insert(constellations_map[cons_name].end(), stars[j]);
                     constellations_map[cons_name].insert(constellations_map[cons_name].end(), stars[k]);
-
-                    // if (k < (stars_length - 3))
-                    // {
-                    //     stars[k].x = -1;
-                    // }
                 }
 
                 delete[] new_triangle.angles;
