@@ -17,8 +17,8 @@ using namespace std;
 
 struct Star
 {
-    short x;
-    short y;
+    int x;
+    int y;
 };
 
 struct Triangle
@@ -52,14 +52,14 @@ bool isclose(float value1, float value2, float precision)
     return abs(value1 - value2) <= precision;
 }
 
-float calculate_distance(struct Star star1, struct Star star2)
+float calculate_distance(Star star1, Star star2)
 {
-    short diff_x = star1.x - star2.x;
-    short diff_y = star1.y - star2.y;
+    int diff_x = star1.x - star2.x;
+    int diff_y = star1.y - star2.y;
     return sqrt(diff_x * diff_x + diff_y * diff_y);
 }
 
-inline struct Triangle calculate_angles(struct Star star1, struct Star star2, struct Star star3)
+inline Triangle calculate_angles(Star star1, Star star2, Star star3)
 {
     float a = calculate_distance(star1, star2);
     float b = calculate_distance(star2, star3);
@@ -73,7 +73,7 @@ inline struct Triangle calculate_angles(struct Star star1, struct Star star2, st
     float b_angle = RAD2DEG_COEF * acos(b_cos);
     float c_angle = RAD2DEG_COEF * acos(c_cos);
 
-    struct Triangle triangle;
+    Triangle triangle;
     triangle.angles = new float[3];
     triangle.angles[0] = a_angle;
     triangle.angles[1] = b_angle;
@@ -84,9 +84,9 @@ inline struct Triangle calculate_angles(struct Star star1, struct Star star2, st
     return triangle;
 }
 
-bool triangles_are_equal(struct Triangle tr1, struct Triangle tr2)
+bool triangles_are_equal(Triangle tr1, Triangle tr2)
 {
-    float precision = 0.2;
+    float precision = 0.5;
 
     return isclose(tr1.angles[0], tr2.angles[0], precision) && isclose(tr1.angles[1], tr2.angles[1], precision) && isclose(tr1.angles[2], tr2.angles[2], precision);
 }
@@ -122,14 +122,14 @@ char* triangles_binary_search(Triangle triangle, Triangle* array, int start, int
 }
 
 extern "C"
-struct Constellation* identify_constellation(int stars_length, struct Star stars[], int database_length, struct Triangle database[])
+Constellation* identify_constellation(int stars_length, Star stars[], int database_length, Triangle database[])
 {
     using namespace std::chrono;
     auto t1_s = high_resolution_clock::now();
-    struct Constellation* result_constellations;
-    map<std::string, std::list<struct Star>> constellations_map;
+    Constellation* result_constellations;
+    map<std::string, std::list<Star>> constellations_map;
 
-    struct Triangle new_triangle;
+    Triangle new_triangle;
 
     for (int i = 0; i < stars_length; i++)
     {
@@ -145,7 +145,7 @@ struct Constellation* identify_constellation(int stars_length, struct Star stars
                 {
                     if (constellations_map.count(cons_name) == 0)
                     {
-                        list<struct Star> new_list;
+                        list<Star> new_list;
                         constellations_map.insert({cons_name, new_list});
                     }
 
@@ -159,7 +159,7 @@ struct Constellation* identify_constellation(int stars_length, struct Star stars
         } 
     }
 
-    result_constellations = (struct Constellation*)malloc(sizeof(struct Constellation) * (constellations_map.size() + 1));
+    result_constellations = (Constellation*)malloc(sizeof(Constellation) * (constellations_map.size() + 1));
     int i = 0;
     int j;
     struct Star temp_star;
@@ -170,7 +170,7 @@ struct Constellation* identify_constellation(int stars_length, struct Star stars
     {
         result_constellations[i].name = (char*)malloc(it->first.size() + 1);
         strcpy(result_constellations[i].name, (char*)it->first.c_str());
-        result_constellations[i].stars = (struct Star*)malloc(sizeof(struct Star) * it->second.size());
+        result_constellations[i].stars = (Star*)malloc(sizeof(Star) * it->second.size());
         j = 0;
 
         auto stars_iterator_end = it->second.end();

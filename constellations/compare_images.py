@@ -5,8 +5,8 @@ import ctypes
 
 class Star_struct(ctypes.Structure):
     _fields_ = [
-        ('x', ctypes.c_int16),
-        ('y', ctypes.c_int16)
+        ('x', ctypes.c_int),
+        ('y', ctypes.c_int)
     ]
 
 class Triangle_struct(ctypes.Structure):

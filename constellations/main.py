@@ -17,7 +17,7 @@ def create_database():
 
 #@profile
 def identify():
-    constellation_image = cv2.imread("./user_images_cleared/centaur.jpg", cv2.IMREAD_UNCHANGED)
+    constellation_image = cv2.imread("./user_images_cleared/ursa_major.jpg", cv2.IMREAD_UNCHANGED)
     constellations = compare_images.identify_constellation(constellation_image)
     for item in constellations.items():
         result_image = compare_images.mark_constellation(item[1], constellation_image)
