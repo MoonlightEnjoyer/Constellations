@@ -9,6 +9,12 @@ class Star_struct(ctypes.Structure):
         ('y', ctypes.c_int)
     ]
 
+class DatabaseStar_struct(ctypes.Structure):
+    _fields_ = [
+        ('constellation', ctypes.c_char_p),
+        ('angles', ctypes.POINTER(ctypes.c_float))
+    ]
+
 class Triangle_struct(ctypes.Structure):
     _fields_ = [
         ('constellation_name', ctypes.c_char_p),
@@ -32,12 +38,12 @@ def identify_constellation(source_image):
     stars = create_stars_list(source_image)
     database = constellations_database.load_database()
 
-    database.sort(key=lambda x : x.angles[0])
+    #database.sort(key=lambda x : x.angles[0])
 
     global _identify_constellations
 
     stars_array_type = Star_struct * len(stars)
-    database_array_type = Triangle_struct * len(database)
+    database_array_type = DatabaseStar_struct * len(database)
 
     stars_struct = stars_array_type()
     
@@ -50,18 +56,18 @@ def identify_constellation(source_image):
     database_struct = database_array_type()
     
     for i in range(len(database)):
-        database_struct[i].constellation_name = database[i].constellation_name.encode('utf-8')
-        angles_array = ctypes.c_float * 3
+        database_struct[i].constellation = database[i].constellation.encode('utf-8')
+        angles_array = ctypes.c_float * len(database[i].angles)
         database_struct[i].angles = angles_array(*database[i].angles)
 
-    database_struct_pointer = ctypes.cast(database_struct, ctypes.POINTER(Triangle_struct))
+    database_struct_pointer = ctypes.cast(database_struct, ctypes.POINTER(DatabaseStar_struct))
 
     constellations_array_type = Constellation_struct * 0
     constellations_struct = constellations_array_type()
     constellations_pointer = ctypes.pointer(constellations_struct)
 
     stars_struct_pointer = ctypes.cast(stars_struct_pointer, ctypes.POINTER(Star_struct))
-    database_struct_pointer = ctypes.cast(database_struct_pointer, ctypes.POINTER(Triangle_struct))
+    database_struct_pointer = ctypes.cast(database_struct_pointer, ctypes.POINTER(DatabaseStar_struct))
     constellations_pointer = ctypes.cast(constellations_pointer, ctypes.POINTER(Constellation_struct))
 
     constellations_pointer = _identify_constellations.identify_constellation(ctypes.c_int(len(stars)), stars_struct_pointer, ctypes.c_int(len(database)), database_struct_pointer)

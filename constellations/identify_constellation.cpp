@@ -5,6 +5,7 @@
 #include <algorithm>
 #include <chrono>
 #include <cmath>
+#include <vector>
 
 #ifndef  M_PI
 #define  M_PI  3.141592653589793238
@@ -19,6 +20,12 @@ struct Star
 {
     int x;
     int y;
+};
+
+struct DatabaseStar
+{
+    char* constellation;
+    float* angles;
 };
 
 struct Triangle
@@ -59,29 +66,17 @@ float calculate_distance(Star star1, Star star2)
     return sqrt(diff_x * diff_x + diff_y * diff_y);
 }
 
-inline Triangle calculate_angles(Star star1, Star star2, Star star3)
+inline float calculate_angle(Star star1, Star star2, Star star3)
 {
     float a = calculate_distance(star1, star2);
     float b = calculate_distance(star2, star3);
     float c = calculate_distance(star1, star3);
 
-    float a_cos = (b * b + c * c - a * a) / (2 * c * b);
     float b_cos = (a * a + c * c - b * b) / (2 * a * c);
-    float c_cos = (a * a + b * b - c * c) / (2 * a * b);
 
-    float a_angle = RAD2DEG_COEF * acos(a_cos);
     float b_angle = RAD2DEG_COEF * acos(b_cos);
-    float c_angle = RAD2DEG_COEF * acos(c_cos);
 
-    Triangle triangle;
-    triangle.angles = new float[3];
-    triangle.angles[0] = a_angle;
-    triangle.angles[1] = b_angle;
-    triangle.angles[2] = c_angle;
-
-    sort(triangle.angles, triangle.angles + 3);
-
-    return triangle;
+    return b_angle;
 }
 
 bool triangles_are_equal(Triangle tr1, Triangle tr2)
@@ -122,42 +117,52 @@ char* triangles_binary_search(Triangle triangle, Triangle* array, int start, int
 }
 
 extern "C"
-Constellation* identify_constellation(int stars_length, Star stars[], int database_length, Triangle database[])
+Constellation* identify_constellation(int stars_length, Star stars[], int database_length, DatabaseStar database[])
 {
     using namespace std::chrono;
     auto t1_s = high_resolution_clock::now();
     Constellation* result_constellations;
     map<std::string, std::list<Star>> constellations_map;
 
-    Triangle new_triangle;
+    float new_angle;
+
+    DatabaseStar* stars_calculated = new DatabaseStar[stars_length]; 
+
 
     for (int i = 0; i < stars_length; i++)
     {
-        for (int j = i + 1; j < stars_length; j++)
+        vector<float> new_angles;
+
+        for (int j = 0; j < stars_length; j++)
         { 
-            for (int k = j + 1; k < stars_length; k++)
+            if (i == j)
             {
-                new_triangle = calculate_angles(stars[i], stars[j], stars[k]);
+                continue;
+            }
 
-                char* cons_name = triangles_binary_search(new_triangle, database, 0, database_length);
-
-                if (cons_name != nullptr)
+            for (int k = 0; k < stars_length; k++)
+            {
+                if (i == j || j == k)
                 {
-                    if (constellations_map.count(cons_name) == 0)
-                    {
-                        list<Star> new_list;
-                        constellations_map.insert({cons_name, new_list});
-                    }
-
-                    constellations_map[cons_name].insert(constellations_map[cons_name].end(), stars[i]);
-                    constellations_map[cons_name].insert(constellations_map[cons_name].end(), stars[j]);
-                    constellations_map[cons_name].insert(constellations_map[cons_name].end(), stars[k]);
+                    continue;
                 }
 
-                delete[] new_triangle.angles;
+                new_angle = calculate_angle(stars[i], stars[j], stars[k]);
+
+                new_angles.push_back(new_angle);
             }
-        } 
+        }
+
+        stars_calculated[i].angles = new_angles.data();
+
+        //TODO
+        //find star with similar angles list in database.
+        //stars_calculated[i].constellation = constellation_name from database
+        //constellations_map[stars_calculated[i].constellation].insert(stars[i])
+        //TODO
     }
+
+    // no changes after this line
 
     result_constellations = (Constellation*)malloc(sizeof(Constellation) * (constellations_map.size() + 1));
     int i = 0;
