@@ -6,6 +6,7 @@
 #include <chrono>
 #include <cmath>
 #include <vector>
+#include <unordered_map>
 
 #ifndef  M_PI
 #define  M_PI  3.141592653589793238
@@ -49,11 +50,6 @@ struct Constellation
     int stars_length;
 };
 
-bool isclose(float value1, float value2, float precision)
-{
-    return abs(value1 - value2) <= precision;
-}
-
 float calculate_distance(Star star1, Star star2)
 {
     int diff_x = star1.x - star2.x;
@@ -74,16 +70,45 @@ inline float calculate_angle(Star star1, Star star2, Star star3)
     return b_angle;
 }
 
+inline bool isclose(float value1, float value2)
+{
+    float precision = 0.5;
+    return abs(value1 - value2) <= precision;
+}
+
+inline bool angles_binary_search(float angle, float* array, int start, int end)
+{
+    int middle = (start + end) / 2;
+
+    if (middle == start)
+    {
+        return isclose(angle, array[middle]);
+    }
+
+    bool triangle_name;
+
+    if (angle < array[middle])
+    {
+        triangle_name = angles_binary_search(angle, array, start, middle);
+    }
+    else
+    {
+        triangle_name = angles_binary_search(angle, array, middle, end);
+    }
+
+    return true;
+}
+
 extern "C"
 Constellation* identify_constellation(int stars_length, Star stars[], int database_length, DatabaseStar database[])
 {
     std::cout << "Inside identify constellation." << endl;
 
-    std::cout << "Databasse length : " << database_length << endl;
+    std::cout << "Database length : " << database_length << endl;
     using namespace std::chrono;
     auto t1_s = high_resolution_clock::now();
     Constellation* result_constellations;
-    map<std::string, std::list<Star>> constellations_map;
+    unordered_map<std::string, std::list<Star>> constellations_map;
 
     float new_angle;
     
@@ -114,21 +139,25 @@ Constellation* identify_constellation(int stars_length, Star stars[], int databa
         std::cout << "After angles calculation." << endl;
 
         int max_angles = 0;
-        char* constellation_name = nullptr;
+        char* constellation_name = "no_constellation";
 
         auto na_end = new_angles.end();
         auto na_beg = new_angles.begin();
+        auto na_size = new_angles.size();
+        auto na_data = new_angles.data();
         int angles_counter;
-
+        long debug_counter = 0;
         for (auto it = na_beg; it != na_end; ++it)
         {   
             //takes too long
+            auto s_s = high_resolution_clock::now();
             for (int i = 0; i < database_length; i++)
             {
                 angles_counter = 0;
                 for (int j = 0; j < database[i].angles_length; j++)
                 {
-                    angles_counter += binary_search(na_beg, na_end, database->angles[j]);
+                    angles_counter += angles_binary_search(database->angles[j], na_data, 0, na_size);
+                    debug_counter++;
                 }
 
                 if (angles_counter > max_angles)
@@ -137,18 +166,21 @@ Constellation* identify_constellation(int stars_length, Star stars[], int databa
                     constellation_name = database[i].constellation;
                 }
             }
+
+            auto s_e = high_resolution_clock::now();
+            auto s_time = duration_cast<duration<double>>(s_e- s_s);
+            //std::cout << "step [" << debug_counter << "] execution time: " << s_time.count() << " seconds." << endl; 
             //
 
-            if (constellation_name != nullptr)
-            {
-                if (constellations_map.count(constellation_name) == 0)
-                {
-                    list<Star> new_list;
-                    constellations_map.insert({constellation_name, new_list});
-                }
+            angles_counter = debug_counter;
 
-                constellations_map[constellation_name].insert(constellations_map[constellation_name].end(), stars[i]);
+            if (constellations_map.find(constellation_name) == constellations_map.end())
+            {
+                list<Star> new_list;
+                constellations_map.insert({constellation_name, new_list});
             }
+
+            constellations_map[constellation_name].insert(constellations_map[constellation_name].end(), stars[i]);
         }
 
         std::cout << i << " step of " << stars_length << endl;
