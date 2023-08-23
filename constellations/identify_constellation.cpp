@@ -25,12 +25,7 @@ struct Star
 struct DatabaseStar
 {
     char* constellation;
-    float* angles;
-};
-
-struct Triangle
-{
-    char* constellation_name;
+    int angles_length;
     float* angles;
 };
 
@@ -79,56 +74,19 @@ inline float calculate_angle(Star star1, Star star2, Star star3)
     return b_angle;
 }
 
-bool triangles_are_equal(Triangle tr1, Triangle tr2)
-{
-    float precision = 0.5;
-
-    return isclose(tr1.angles[0], tr2.angles[0], precision) && isclose(tr1.angles[1], tr2.angles[1], precision) && isclose(tr1.angles[2], tr2.angles[2], precision);
-}
-
-char* triangles_binary_search(Triangle triangle, Triangle* array, int start, int end)
-{
-    int middle = (start + end) / 2;
-
-    if (middle == start)
-    {
-        if (triangles_are_equal(triangle, array[middle]))
-        {
-            return array[middle].constellation_name;
-        }
-        else
-        {
-            return nullptr;
-        }
-    }
-
-    char* triangle_name;
-
-    if (triangle.angles[0] < array[middle].angles[0])
-    {
-        triangle_name = triangles_binary_search(triangle, array, start, middle);
-    }
-    else
-    {
-        triangle_name = triangles_binary_search(triangle, array, middle, end);
-    }
-
-    return triangle_name;
-}
-
 extern "C"
 Constellation* identify_constellation(int stars_length, Star stars[], int database_length, DatabaseStar database[])
 {
+    std::cout << "Inside identify constellation." << endl;
+
+    std::cout << "Databasse length : " << database_length << endl;
     using namespace std::chrono;
     auto t1_s = high_resolution_clock::now();
     Constellation* result_constellations;
     map<std::string, std::list<Star>> constellations_map;
 
     float new_angle;
-
-    DatabaseStar* stars_calculated = new DatabaseStar[stars_length]; 
-
-
+    
     for (int i = 0; i < stars_length; i++)
     {
         vector<float> new_angles;
@@ -153,16 +111,50 @@ Constellation* identify_constellation(int stars_length, Star stars[], int databa
             }
         }
 
-        stars_calculated[i].angles = new_angles.data();
+        std::cout << "After angles calculation." << endl;
 
-        //TODO
-        //find star with similar angles list in database.
-        //stars_calculated[i].constellation = constellation_name from database
-        //constellations_map[stars_calculated[i].constellation].insert(stars[i])
-        //TODO
+        int max_angles = 0;
+        char* constellation_name = nullptr;
+
+        auto na_end = new_angles.end();
+        auto na_beg = new_angles.begin();
+        int angles_counter;
+
+        for (auto it = na_beg; it != na_end; ++it)
+        {   
+            //takes too long
+            for (int i = 0; i < database_length; i++)
+            {
+                angles_counter = 0;
+                for (int j = 0; j < database[i].angles_length; j++)
+                {
+                    angles_counter += binary_search(na_beg, na_end, database->angles[j]);
+                }
+
+                if (angles_counter > max_angles)
+                {
+                    max_angles = angles_counter;
+                    constellation_name = database[i].constellation;
+                }
+            }
+            //
+
+            if (constellation_name != nullptr)
+            {
+                if (constellations_map.count(constellation_name) == 0)
+                {
+                    list<Star> new_list;
+                    constellations_map.insert({constellation_name, new_list});
+                }
+
+                constellations_map[constellation_name].insert(constellations_map[constellation_name].end(), stars[i]);
+            }
+        }
+
+        std::cout << i << " step of " << stars_length << endl;
     }
 
-    // no changes after this line
+    std::cout << "After constellations_map filling." << endl;
 
     result_constellations = (Constellation*)malloc(sizeof(Constellation) * (constellations_map.size() + 1));
     int i = 0;

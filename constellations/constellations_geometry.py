@@ -6,6 +6,7 @@ from numba import njit
 from numba.experimental import jitclass
 from numba import int32
 from common_types import Star
+import cv2
 
 
 
@@ -28,7 +29,7 @@ def calculate_angle(point1: Star, point2: Star, point3: Star) -> float:
     except Exception:
         return None
 
-@njit
+# @njit
 def create_stars_list(image) -> list[Star]:
     stars = []
     for i in range(image.shape[0]):
@@ -37,13 +38,14 @@ def create_stars_list(image) -> list[Star]:
                 stars.append(Star(j, i))
 
     
-    cleared_stars = []
-    for star in stars:
-        ok = True
-        for star_1 in cleared_stars:
-            if calculate_distance(star, star_1) < 20:
-                ok = False
-        if ok:
-            cleared_stars.append(star)
+    # cleared_stars = []
+    # for star in stars:
+    #     ok = True
+    #     for star_1 in cleared_stars:
+    #         if calculate_distance(star, star_1) < 20:
+    #             ok = False
+    #     if ok:
+    #         cleared_stars.append(star)
 
-    return cleared_stars
+
+    return stars

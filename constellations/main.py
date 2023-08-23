@@ -17,7 +17,7 @@ def create_database():
 
 #@profile
 def identify():
-    constellation_image = cv2.imread("./user_images_cleared/ursa_major.jpg", cv2.IMREAD_UNCHANGED)
+    constellation_image = cv2.imread("./user_images_cleared/ursa_major.png", cv2.IMREAD_UNCHANGED)
     constellations = compare_images.identify_constellation(constellation_image)
     for item in constellations.items():
         result_image = compare_images.mark_constellation(item[1], constellation_image)
@@ -29,11 +29,11 @@ def clear_user():
     for filename in os.listdir(dir):
         user_image = cv2.imread(f"{dir}/{filename}", cv2.IMREAD_UNCHANGED)
         user_image = clear_user_images.clear_image(user_image, filename)
-        cv2.imwrite(fr"{cleared_dir}/{filename}", user_image)
+        cv2.imwrite(fr"{cleared_dir}/{filename[:-4]}.png", user_image)
 
 
-# identify()
+identify()
 
 # clear_user()
 
-create_database()
+#create_database()

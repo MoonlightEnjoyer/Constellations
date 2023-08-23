@@ -12,6 +12,7 @@ class Star_struct(ctypes.Structure):
 class DatabaseStar_struct(ctypes.Structure):
     _fields_ = [
         ('constellation', ctypes.c_char_p),
+        ('angles_length', ctypes.c_int),
         ('angles', ctypes.POINTER(ctypes.c_float))
     ]
 
@@ -24,21 +25,18 @@ class Triangle_struct(ctypes.Structure):
 class Constellation_struct(ctypes.Structure):
     _fields_ = [
         ('name', ctypes.POINTER(ctypes.c_char)),
-        #('name_length', ctypes.c_int),
         ('stars', ctypes.POINTER(Star_struct)),
         ('stars_length', ctypes.c_int)
     ]
 
 _identify_constellations = ctypes.CDLL('./libconstellations.so')
 _identify_constellations.identify_constellation.restype = ctypes.POINTER(Constellation_struct)
-_identify_constellations.identify_constellation.argtypes = (ctypes.c_int, ctypes.POINTER(Star_struct), ctypes.c_int, ctypes.POINTER(Triangle_struct))
+_identify_constellations.identify_constellation.argtypes = (ctypes.c_int, ctypes.POINTER(Star_struct), ctypes.c_int, ctypes.POINTER(DatabaseStar_struct))
 
 
 def identify_constellation(source_image):
     stars = create_stars_list(source_image)
     database = constellations_database.load_database()
-
-    #database.sort(key=lambda x : x.angles[0])
 
     global _identify_constellations
 
@@ -58,6 +56,7 @@ def identify_constellation(source_image):
     for i in range(len(database)):
         database_struct[i].constellation = database[i].constellation.encode('utf-8')
         angles_array = ctypes.c_float * len(database[i].angles)
+        database_struct[i].angles_length = len(database[i].angles)
         database_struct[i].angles = angles_array(*database[i].angles)
 
     database_struct_pointer = ctypes.cast(database_struct, ctypes.POINTER(DatabaseStar_struct))
