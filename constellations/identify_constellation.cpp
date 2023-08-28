@@ -86,7 +86,7 @@ inline Triangle calculate_angles(Star star1, Star star2, Star star3)
 
 bool triangles_are_equal(Triangle tr1, Triangle tr2)
 {
-    float precision = 0.1;
+    float precision = 0.01;
 
     return isclose(tr1.angles[0], tr2.angles[0], precision) && isclose(tr1.angles[1], tr2.angles[1], precision) && isclose(tr1.angles[2], tr2.angles[2], precision);
 }
